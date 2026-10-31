@@ -1,0 +1,19 @@
+{
+  "schema_version": "1.0",
+  "catalog_id": "paternidade-workshop",
+  "name": "Especialistas locais",
+  "agents": [
+    {
+      "id": "enxoval",
+      "skill": "layette.needs",
+      "http_url": "http://localhost:8101",
+      "agent_card_url": "http://localhost:8101/.well-known/agent-card.json"
+    },
+    {
+      "id": "cotacao",
+      "skill": "shop.quote",
+      "http_url": "http://localhost:8102",
+      "agent_card_url": "http://localhost:8102/.well-known/agent-card.json"
+    }
+  ]
+}

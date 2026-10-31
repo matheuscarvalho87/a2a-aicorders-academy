@@ -1,0 +1,32 @@
+# Material local do apresentador: não faz parte do template dos alunos.
+/docs/
+/presentation/
+/examples/result-*.json
+*.code-workspace.local
+
+# Ambientes, caches e resultados de execução.
+.venv/
+venv/
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.ruff_cache/
+.mypy_cache/
+.coverage
+htmlcov/
+.run/
+*.log
+dist/
+build/
+*.egg-info/
+node_modules/
+
+# Configurações locais e segredos. Exemplos sem credenciais podem ser públicos.
+.env
+.env.*
+!.env.example
+!.env.sample
+
+# Arquivos do sistema operacional.
+.DS_Store
+Thumbs.db

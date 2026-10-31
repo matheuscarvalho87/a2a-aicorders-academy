@@ -1,0 +1,25 @@
+name: aicoders-academy-workshop
+services:
+  enxoval:
+    build: ./enxoval-adk
+    ports: ["127.0.0.1:8101:8101"]
+    environment:
+      PUBLIC_URL: http://enxoval:8101
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8101/health', timeout=1)"]
+      interval: 3s
+      timeout: 2s
+      retries: 30
+  cotacao:
+    build: ./cotacao-crewai
+    ports: ["127.0.0.1:8102:8102"]
+    environment:
+      PUBLIC_URL: http://cotacao:8102
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8102/health', timeout=1)"]
+      interval: 3s
+      timeout: 2s
+      retries: 30
+  maestro:
+    profiles: ["client"]
+    build: ./maestro-langchain

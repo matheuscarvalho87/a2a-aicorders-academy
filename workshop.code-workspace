@@ -1,0 +1,16 @@
+{
+  "folders": [
+    { "name": "Maestro · LangChain", "path": "maestro-langchain" },
+    { "name": "Enxoval · ADK", "path": "enxoval-adk" },
+    { "name": "Cotação · CrewAI", "path": "cotacao-crewai" }
+  ],
+  "settings": {
+    "editor.wordWrap": "on",
+    "editor.formatOnSave": true,
+    "[python]": { "editor.tabSize": 4 },
+    "[json]": { "editor.defaultFormatter": "vscode.json-language-features" }
+  },
+  "extensions": {
+    "recommendations": ["ms-python.python", "ms-python.debugpy"]
+  }
+}
