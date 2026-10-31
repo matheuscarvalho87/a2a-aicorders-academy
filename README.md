@@ -34,27 +34,66 @@ Para acompanhar a aula, use **Git, uv e um terminal Linux/macOS ou Ubuntu no WSL
 
 Requer Python 3.12 e [uv](https://docs.astral.sh/uv/getting-started/installation/). `uv sync` pode obter o Python compatível se necessário. Windows: use o terminal Ubuntu/WSL. `--frozen` respeita os locks e não atualiza versões durante a aula.
 
+### Conferir as ferramentas
+
+```bash
+python3 --version
+uv --version
+```
+
+Se uv ainda não estiver instalado, em Ubuntu/WSL, Linux ou macOS:
+
+```bash
+curl -LsSf https://astral.sh/uv/install.sh | sh
+```
+
+Reabra o terminal após a instalação e confirme `uv --version`. Vamos criar **uma `.venv` em cada projeto**, não um ambiente único na raiz.
+
+### Terminal 1 · Preparar e iniciar o enxoval
+
+Partindo da raiz do template:
+
 ```bash
 cd enxoval-adk
+uv venv --python 3.12
+source .venv/bin/activate
 uv sync --frozen
 uv run uvicorn app:app --port 8101 --reload
 ```
 
-Em outro terminal, a partir da raiz do workshop:
+### Terminal 2 · Preparar e iniciar a cotação
+
+Em outro terminal, a partir da raiz do template:
 
 ```bash
 cd cotacao-crewai
+uv venv --python 3.12
+source .venv/bin/activate
 uv sync --frozen
 uv run uvicorn app:app --port 8102 --reload
 ```
+
+### Terminal 3 · Preparar e executar o maestro
 
 Em um terceiro terminal, também a partir da raiz do template:
 
 ```bash
 cd maestro-langchain
+uv venv --python 3.12
+source .venv/bin/activate
 uv sync --frozen
 uv run python maestro.py --transport http
 ```
+
+`uv venv --python 3.12` cria o ambiente; `source` o ativa naquele terminal; `uv sync --frozen` instala as dependências nas versões do lock. Se a `.venv` já existe, pule a criação e execute a ativação e a sincronização. Não use `uv init` nem instale os pacotes um por um com pip.
+
+Para conferir o interpretador de cada projeto:
+
+```bash
+uv run python -c "import sys; print(sys.version); print(sys.executable)"
+```
+
+O caminho deve apontar para a `.venv` do respectivo projeto, com Python 3.12. `uv run` usa esse ambiente mesmo sem ativação manual; mostramos a ativação para deixar o isolamento explícito. Para sair do ambiente ativado, use `deactivate`. As pastas `.venv` ficam somente na sua máquina e são ignoradas pelo Git.
 
 Os clientes HTTP estão nas pastas dos especialistas: `uv run python client_http.py`. No HTTP, o resultado esperado é `status: complete`, cotação fictícia de `14000` centavos e `within_budget: true`. Swagger: http://localhost:8101/docs e http://localhost:8102/docs.
 
