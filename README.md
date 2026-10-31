@@ -17,7 +17,74 @@ tests/             Teste de integração com processos reais
 
 Cada pasta tem `pyproject.toml`, `uv.lock`, Dockerfile e README próprios. Pode ser copiada e executada separadamente. Use este diretório como raiz do repositório GitHub marcado como **Template repository**. Os locks e as configurações de debug são parte do material dos alunos; ambientes virtuais, caches e material local do apresentador ficam fora do versionamento.
 
-## Início rápido · Docker
+## Baixar o template
+
+Use **Use this template** no GitHub para criar sua própria cópia, ou clone diretamente o material público:
+
+```bash
+git clone https://github.com/matheuscarvalho87/a2a-aicorders-academy.git
+cd a2a-aicorders-academy
+```
+
+Esse diretório é a **raiz do template** nos comandos abaixo; não há outra pasta `workshop/` dentro do repositório publicado. Abra um terminal separado nessa raiz para cada serviço e para o maestro.
+
+Para acompanhar a aula, use **Git, uv e um terminal Linux/macOS ou Ubuntu no WSL**. O projeto usa Python 3.12; o uv pode baixar o interpretador se não estiver instalado. A instalação do uv está descrita na [documentação oficial](https://docs.astral.sh/uv/getting-started/installation/). A primeira sincronização precisa de internet para baixar Python/dependências. Não é necessário Docker, chave de API ou arquivo `.env` para a execução local.
+
+## Codar e depurar localmente · uv
+
+Requer Python 3.12 e [uv](https://docs.astral.sh/uv/getting-started/installation/). `uv sync` pode obter o Python compatível se necessário. Windows: use o terminal Ubuntu/WSL. `--frozen` respeita os locks e não atualiza versões durante a aula.
+
+```bash
+cd enxoval-adk
+uv sync --frozen
+uv run uvicorn app:app --port 8101 --reload
+```
+
+Em outro terminal, a partir da raiz do workshop:
+
+```bash
+cd cotacao-crewai
+uv sync --frozen
+uv run uvicorn app:app --port 8102 --reload
+```
+
+Em um terceiro terminal, também a partir da raiz do template:
+
+```bash
+cd maestro-langchain
+uv sync --frozen
+uv run python maestro.py --transport http
+```
+
+Os clientes HTTP estão nas pastas dos especialistas: `uv run python client_http.py`. No HTTP, o resultado esperado é `status: complete`, cotação fictícia de `14000` centavos e `within_budget: true`. Swagger: http://localhost:8101/docs e http://localhost:8102/docs.
+
+### Testar a solução A2A completa localmente
+
+Pare os dois servidores anteriores com Ctrl+C. No terminal que já está em `enxoval-adk/`:
+
+```bash
+uv run uvicorn a2a_reference:app --port 8101 --reload
+```
+
+No terminal que já está em `cotacao-crewai/`:
+
+```bash
+uv run uvicorn a2a_reference:app --port 8102 --reload
+```
+
+No terminal que já está em `maestro-langchain/`:
+
+```bash
+uv run python maestro.py --transport a2a --implementation reference
+```
+
+Confira `status: complete` e `a2a_tasks` com a cotação passando por `INPUT_REQUIRED` e `COMPLETED` com os mesmos IDs. Para o exercício ao vivo, troque os módulos dos servidores por `a2a_exercise:app` depois de preencher os TODOs e execute o maestro com `--implementation exercise`. Os exercícios incompletos falham explicitamente; isso é esperado no template inicial.
+
+É possível colocar breakpoints em `run_agent`, nas ferramentas e nos adaptadores. Para debug Python com VS Code, selecione a `.venv` do projeto e rode `uvicorn` sem `--reload` no debugger; o reload cria um processo filho.
+
+Também incluímos `workshop.code-workspace`: abra esse arquivo no VS Code conectado ao WSL para carregar as três pastas. Depois de sincronizar os ambientes, as configurações de execução oferecem HTTP, exercício e referência para cada projeto. Escolha uma por especialista, inicie os dois servidores e então execute o maestro. Não execute simultaneamente as três variantes do mesmo servidor, pois usam a mesma porta.
+
+## Alternativa opcional · Docker
 
 No terminal WSL/Linux/macOS, dentro desta pasta. Requer Docker com Compose v2. O build inicial precisa de internet e baixa as dependências Python; faça antes da aula.
 
@@ -39,9 +106,9 @@ docker compose exec enxoval python client_http.py
 docker compose exec cotacao python client_http.py
 ```
 
-Neste starter as Agent Cards e `/a2a` ainda não estão expostas: GET na card retorna 404. As portas 8101/8102 não conflitam com a prova anterior nas portas 8000–8002. Se estiver usando execução uv, pare esses servidores antes de subir os containers nas mesmas portas.
+Neste starter as Agent Cards e `/a2a` ainda não estão expostas: GET na card retorna 404. Reserve as portas 8101 e 8102. Se estiver usando execução uv, pare esses servidores antes de subir os containers nas mesmas portas.
 
-## Referência A2A completa
+## Referência A2A com Docker
 
 ```bash
 # Mesmo projeto Compose e mesmas APIs, agora com A2A habilitado
@@ -55,39 +122,7 @@ curl -s http://localhost:8101/.well-known/agent-card.json | python3 -m json.tool
 
 Na saída `a2a_tasks`, a loja passa por `INPUT_REQUIRED` e `COMPLETED` com os mesmos IDs de task/context. O maestro inicialmente omite o orçamento para demonstrar a pausa e o fornece automaticamente na retomada. Não há interação de terminal nesta etapa.
 
-As cards dos containers anunciam DNS Docker; use o maestro pelo Compose. Para depurar com uv e localhost, use os comandos abaixo. `PUBLIC_URL` controla a URL anunciada, não a interface de bind do servidor.
-
-## Codar e depurar localmente · uv
-
-Requer Python 3.12 e [uv](https://docs.astral.sh/uv/getting-started/installation/). `uv sync` pode obter o Python compatível se necessário. Windows: use o terminal Ubuntu/WSL. `--frozen` respeita os locks e não atualiza versões durante a aula.
-
-```bash
-cd enxoval-adk
-uv sync --frozen
-uv run uvicorn app:app --port 8101 --reload
-```
-
-Em outro terminal, a partir da raiz do workshop:
-
-```bash
-cd cotacao-crewai
-uv sync --frozen
-uv run uvicorn app:app --port 8102 --reload
-```
-
-Em um terceiro terminal:
-
-```bash
-cd maestro-langchain
-uv sync --frozen
-uv run python maestro.py --transport http
-```
-
-Os clientes HTTP estão nas pastas dos especialistas: `uv run python client_http.py`. Para A2A, pare os servidores com Ctrl+C e troque `app:app` por `a2a_exercise:app` ou `a2a_reference:app`. O maestro usa `--transport a2a` para o exercício e `--transport a2a --implementation reference` para a solução.
-
-É possível colocar breakpoints em `run_agent`, nas ferramentas e nos adaptadores. Para debug Python com VS Code, selecione a `.venv` do projeto e rode `uvicorn` sem `--reload` no debugger; o reload cria um processo filho.
-
-Também incluímos `workshop.code-workspace`: abra esse arquivo no VS Code conectado ao WSL para carregar as três pastas. Depois de sincronizar os ambientes, as configurações de execução oferecem HTTP, exercício e referência para cada projeto. Escolha uma por especialista, inicie os dois servidores e então execute o maestro. Não execute simultaneamente as três variantes do mesmo servidor, pois usam a mesma porta.
+As cards dos containers anunciam DNS Docker; use o maestro pelo Compose. Para depurar com uv e localhost, use a seção de execução local acima. `PUBLIC_URL` controla a URL anunciada, não a interface de bind do servidor.
 
 ## O que o aluno implementa
 
